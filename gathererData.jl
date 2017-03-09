@@ -1,14 +1,17 @@
 
 yearNum = 5
-countryNum = 20
+countryNum = 10
 countryYearsNum = 10*ones(1,yearNum)
 scoreMax = 10
 AVG_SIMULATION = []
 
 stYr = 1
-endYr = 2
+endYr = 1
+iterNum = 100000
+confInd1perc = floor(0.01*iterNum)
+confInd5perc = floor(0.05*iterNum)
 
-for ii in 1:100000
+for ii in 1:iterNum
     ONE_SIMULATION = []#zeros(1,countryNum)#temporarily assume constant
     for yr in stYr:endYr
 	NUM = countryNum#countryYearsNum[winInd]#number of countries voting that year  (temporarily assume constant)
@@ -21,6 +24,9 @@ for ii in 1:100000
 
 end    
 sortedAVG_SIMULATION = sort(AVG_SIMULATION,rev=true)
+conf5perc = sortedAVG_SIMULATION[confInd5perc]
+
+println(conf5perc)
 println(mean(sortedAVG_SIMULATION))
 
 
