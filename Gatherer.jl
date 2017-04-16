@@ -19,17 +19,13 @@ for rf in resultsFile
         yrMax = yrTmp
     end
 end
-#
-print(countryYearsNum2)
-print(countryYearsNum2[2003])
-print(yrMin)
-print(yrMax)
-
-if( endYr < stYr || stYr < yrMin || endYr > yrMax )
-    print(string("year range improperly set, end year must be greater than start and the smallest year is ",(yrMin)," and largest ",(yrMax)))
+#sanity check input years
+if( endYr < stYr || stYr < 1975 || endYr > 2003 )
+    print(string("year range improperly set, for the Gatherer approach end year must be greater than start and the smallest year is ",1975," and largest ",2003," with smallest first"))
+    return
 end
 
-return
+
 
 
 countryYearsNum = countryNum*ones(1,endYr-stYr+1)
