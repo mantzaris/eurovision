@@ -29,6 +29,7 @@ if( (stYr+windowSize) > endYr)
     return
 end
 
+#THRESHOLDS
 windowConf = Dict() #the threshold for significance in each year of window
 yr = stYr
 while( (yr+windowSize) <= endYr )
@@ -37,18 +38,58 @@ while( (yr+windowSize) <= endYr )
     windowConf[string(yr-windowSize,"-",yr)] = conf5perc
 end
 
+#MATRIX WINDOW AVGS
+
+
+
+
 print(windowConf)
+windowAVGS(stYr,endYr,windowSize)
+return windowConf
+#RESULTS
+
+end
 
 
+#AVG FOR EACH TIME WINDOW OF ALL COUNTRIES THAT APPEAR
+function windowAVGS(stYr,endYr,windowSize)
+
+#load each csv and make an aggregate matrix where each contribution is scaled according to the avg
+windowAvgDictTmp = Dict()
+resultsFile = readdir("./data/")
+
+for rf in resultsFile                                        #each file
+    yrTmp = parse(Int,((split(rf,"."))[1]))
+    if(yrTmp >= stYr && yrTmp <= endYr)
+    	print("yrTmp ",yrTmp)
+	fileTmp = open(string("./data/",rf))                     #each file pipe
+	linesTmp = readlines(fileTmp)                            #read each file lines
+	countryNumTmp = length(split(linesTmp[1],","))           #head line of cntry names
+	matTmp = zeros(countryNumTmp,countryNumTmp)              #init mat
+	strNumLines = [split(linesTmp[ii],r",|\n",keep=false) for ii in 2:length(linesTmp)]#arrays of the entries (2D)
+	for ii = 1:length(strNumLines)
+	    matTmp[ii,:] = [parse(Int,strNumLines[ii][jj]) for jj in 1:length(strNumLines[ii])]	    
+        end
+
+	windowAvgDictTmp[yrTmp] = matTmp
+	close(fileTmp)
+    end
+end
+
+yr = stYr
+while( (yr+windowSize) <= endYr )
+    
+    yr = yr + windowSize
+    
+end
+
+print( windowAvgDictTmp)
 end
 
 
 
 
-
-
-
-
+#THRESHOLD FOR EACH TIME WINDOW
 function GathererWindow(stYr,endYr,countryYearsNum)
 
 SCORES = [12,10,8,7,6,5,4,3,2,1]
