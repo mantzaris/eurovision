@@ -56,12 +56,13 @@ function windowAVGS(stYr,endYr,windowSize)
 
 #load each csv and make an aggregate matrix where each contribution is scaled according to the avg
 windowAvgDictTmp = Dict()
+windowAvgDict = Dict()
 resultsFile = readdir("./data/")
 
 for rf in resultsFile                                        #each file
     yrTmp = parse(Int,((split(rf,"."))[1]))
     if(yrTmp >= stYr && yrTmp <= endYr)
-    	print("yrTmp ",yrTmp)
+    
 	fileTmp = open(string("./data/",rf))                     #each file pipe
 	linesTmp = readlines(fileTmp)                            #read each file lines
 	countryNumTmp = length(split(linesTmp[1],","))           #head line of cntry names
@@ -76,14 +77,31 @@ for rf in resultsFile                                        #each file
     end
 end
 
+#put the years into chunks for the window
 yr = stYr
 while( (yr+windowSize) <= endYr )
-    
-    yr = yr + windowSize
-    
+    winInd = 0
+    while(winInd <= windowSize)
+      print( windowAvgDictTmp[yr+winInd] * (1/(windowSize+1)) )
+      yearScaledTmp = (windowAvgDictTmp[yr+winInd]) * (1/(windowSize+1))
+      #print(";ndims yearScaledTmp=$(ndims(yearScaledTmp));")
+      #print("; length yearScaledTmp=$(length(yearScaledTmp));")
+      print(";length yearScaledTmp=$(length(yearScaledTmp[2]));")
+      print(yearScaledTmp)
+      if(winInd == 0)
+         print(";winInd=0;")
+        windowAvgDict["$(yr)-$(yr+windowSize)"] = yearScaledTmp
+         print(";after winInd=0;")
+      elseif(winInd > 0)
+        print(";ndims yearsscaletmp=$(ndims(yearScaledTmp)) ;")
+        windowAvgDict["$(yr)-$(yr+windowSize)"] = windowAvgDict["$(yr)-$(yr+windowSize)"] + yearScaledTmp
+      end
+        winInd = winInd + 1
+    end
+    yr = yr + windowSize    
 end
 
-print( windowAvgDictTmp)
+print( windowAvgDict)
 end
 
 
