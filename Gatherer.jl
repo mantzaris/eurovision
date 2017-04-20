@@ -44,64 +44,105 @@ end
 
 
 print(windowConf)
-windowAVGS(stYr,endYr,windowSize)
-return windowConf
+avgWindowScore(stYr,endYr,windowSize)
+#return windowConf
 #RESULTS
 
 end
 
 
-#AVG FOR EACH TIME WINDOW OF ALL COUNTRIES THAT APPEAR
-function windowAVGS(stYr,endYr,windowSize)
-
-#load each csv and make an aggregate matrix where each contribution is scaled according to the avg
-windowAvgDictTmp = Dict()
+#FOR EACH TIME WINDOW
+function avgWindowScore(stYr,endYr,windowSize)
 windowAvgDict = Dict()
 resultsFile = readdir("./data/")
-
 for rf in resultsFile                                        #each file
     yrTmp = parse(Int,((split(rf,"."))[1]))
-    if(yrTmp >= stYr && yrTmp <= endYr)
-    
+    if(yrTmp >= stYr && yrTmp <= endYr)    
 	fileTmp = open(string("./data/",rf))                     #each file pipe
 	linesTmp = readlines(fileTmp)                            #read each file lines
 	countryNumTmp = length(split(linesTmp[1],","))           #head line of cntry names
 	matTmp = zeros(countryNumTmp,countryNumTmp)              #init mat
-	strNumLines = [split(linesTmp[ii],r",|\n",keep=false) for ii in 2:length(linesTmp)]#arrays of the entries (2D)
+	strNumLines = [split(linesTmp[ii],r",|\n",keep=false) for ii in 2:length(linesTmp)]
 	for ii = 1:length(strNumLines)
 	    matTmp[ii,:] = [parse(Int,strNumLines[ii][jj]) for jj in 1:length(strNumLines[ii])]	    
         end
-
-	windowAvgDictTmp[yrTmp] = matTmp
+	#windowAvgDictTmp[yrTmp] = matTmp #the allocation per year
 	close(fileTmp)
     end
 end
 
+#1-DICTIONARY FOR EACH WINDOW INTERVAL
+winDict = Dict()
+yr = stYr
+while( (yr+windowSize) <= endYr )
+    winDict["$(yr)-$(yr+windowSize)"] = Dict()
+    winDict["$(yr)-$(yr+windowSize)"]["countries"] = []
+    winDict["$(yr)-$(yr+windowSize)"]["scoremat"] = []
+    yr = yr + windowSize
+end
+#print(winDict)
+#2-FILL DICTIONARY WITH ALL POSSIBLE COUNTRY PAIRS IN THOSE YEARS IT COVERS
+resultsFile = readdir("./data/")
+namesDict = Dict()
+for rf in resultsFile   
+    yrTmp = parse(Int,((split(rf,"."))[1]))
+    fileTmp = open(string("./data/",rf))                     #each file pipe
+    linesTmp = readlines(fileTmp)                            #read each file lines
+    namesDict[yrTmp] = split(linesTmp[1],r",|\n",keep=false)
+end
+
+yr = stYr
+while( (yr+windowSize) <= endYr )
+    winInd = 0
+    while(winInd <= windowSize)        
+	new = namesDict[yr + winInd]
+        prev = winDict["$(yr)-$(yr+windowSize)"]["countries"]
+        winDict["$(yr)-$(yr+windowSize)"]["countries"] = sort(unique(append!(prev,new)))
+    
+	winInd = winInd + 1
+    end
+    yr = yr + windowSize
+end
+print("__---__--")
+print(winDict)
+return
+
+#3-ACCUMULATE POINTS OF EACH PARTICULAR COUNTRY TOWARDS ANOTHER DIFFERENT COUNTRY
+#4-THE RESULT IS A DICTIONARY OF YR WINDOWS, HOLDING A DICTIONARY CONTAINING A COUNTRY NAME LIST AND A  MATRIX OF DIRECTIONAL SCORES FOR THESE YEARS
+
+
+
+#=
 #put the years into chunks for the window
 yr = stYr
 while( (yr+windowSize) <= endYr )
     winInd = 0
+    #yearScaledTmpPrev = 0
     while(winInd <= windowSize)
-      print( windowAvgDictTmp[yr+winInd] * (1/(windowSize+1)) )
-      yearScaledTmp = (windowAvgDictTmp[yr+winInd]) * (1/(windowSize+1))
-      #print(";ndims yearScaledTmp=$(ndims(yearScaledTmp));")
-      #print("; length yearScaledTmp=$(length(yearScaledTmp));")
-      print(";length yearScaledTmp=$(length(yearScaledTmp[2]));")
-      print(yearScaledTmp)
-      if(winInd == 0)
-         print(";winInd=0;")
-        windowAvgDict["$(yr)-$(yr+windowSize)"] = yearScaledTmp
-         print(";after winInd=0;")
-      elseif(winInd > 0)
-        print(";ndims yearsscaletmp=$(ndims(yearScaledTmp)) ;")
-        windowAvgDict["$(yr)-$(yr+windowSize)"] = windowAvgDict["$(yr)-$(yr+windowSize)"] + yearScaledTmp
-      end
-        winInd = winInd + 1
+        
+	yearScaledTmp = (windowAvgDictTmp[yr+winInd]) * (1/(windowSize+1))
+
+	if(winInd == 0)	 
+	   windowAvgDict["$(yr)-$(yr+windowSize)"] = yearScaledTmp	 
+	   yearScaledTmpPrev = yearScaledTmp
+	elseif(winInd > 0)
+          for ii=1:length(yearScaledTmpPrev[:,1])
+	    for jj=1:length(yearScaledTmpPrev[1,:])
+              yearScaledTmpPrev[ii,jj] = yearScaledTmpPrev[ii,jj]
+          end
+          
+          
+	  #windowAvgDict["$(yr)-$(yr+windowSize)"] =
+	  
+	end
+	winInd = winInd + 1
+        #yearScaledTmpPrev = yearScaledTmp + yearScaledTmpPrev
     end
     yr = yr + windowSize    
 end
+=#
 
-print( windowAvgDict)
+#print( windowAvgDict)
 end
 
 
