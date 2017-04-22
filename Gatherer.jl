@@ -103,7 +103,7 @@ while( (yr+windowSize) <= endYr )
     end
     yr = yr + windowSize
 end
-print("__---__--")
+print("--xxx'winDict'xxx--")
 print(winDict)
 
 
@@ -116,34 +116,46 @@ while( (yr+windowSize) <= endYr )
     while(winInd <= windowSize)        
 
         matPrev = winDict["$(yr)-$(yr+windowSize)"]["scoremat"]
+	matNew  = zeros(length(matPrev[:,1]),length(matPrev[1,:]))
         namesTotal = winDict["$(yr)-$(yr+windowSize)"]["countries"]
 	yrScores = scoresDict[yr+winInd]#1st year for now
 	
 	yrScores = [parse(Int,yrScores[ii])  for ii in 1:length(yrScores)]
-        print("---xxx---xxx---")
+        print("\n---xxx'yrScores'xxx---")
 	print(yrScores)
 	
         yrNames = namesDict[yr+winInd]
-        print("---xxx'yrNames'xxx---")
+        print("\n---xxx'yrNames'xxx---")
 	print(yrNames)
 	
         tmpInd = find(yrScores) #WHICH YRSCORES INDS ARE NON-ZERO 1st line
-	print("---xxx---xxx---")
+	print("\n---xxx'tmpInd'xxx---")
 	print(tmpInd)
 	
 	tmpNames = yrNames[tmpInd]
-	print("---xxx'tmpNames'xxx---")
+	print("\n---xxx'tmpNames'xxx---")
 	print(tmpNames)
-	return
-        for ii=1:length(namesTotal)
-            for jj=1:length(tmpNames)
-	        if(tmpNames[jj] == namesTotal[ii])
-		    
-                end
-	    end
-        end
-        winDict["$(yr)-$(yr+windowSize)"]["scoremat"] = matPrev
 
+	newInds = []
+	for ind=1:length(tmpNames)
+	    newInds = append!(find([namesTotal[ii] == tmpNames[ind] for ii in 1:length(namesTotal)]),newInds)
+	end
+	newInds = sort(newInds)
+	print("\n---xxx'newInds'xxx---")
+	print(newInds)
+
+	tmpScores = yrScores[tmpInd]
+	print("\n---xxx'tmpScores'xxx")
+	print(tmpScores)
+	matNew[1,newInds] = tmpScores
+	matNew = matNew           # * (1/(windowSize+1)) #+1 for the inclusion of the first year
+	print("\n---xxx'matNew'xxx---\n")
+	print(matNew[1,:])
+	        
+        winDict["$(yr)-$(yr+windowSize)"]["scoremat"] = matPrev + matNew
+	print("\n---xxx'winDict'xxx---\n")
+	print(winDict)
+	return#
         winInd = winInd + 1
     end
     yr = yr + windowSize
