@@ -40,9 +40,6 @@ end
 
 #MATRIX WINDOW AVGS
 
-
-
-
 print(windowConf)
 avgWindowScore(stYr,endYr,windowSize)
 #return windowConf
@@ -84,11 +81,14 @@ end
 #2-FILL DICTIONARY WITH ALL POSSIBLE COUNTRY PAIRS IN THOSE YEARS IT COVERS
 resultsFile = readdir("./data/")
 namesDict = Dict()
+scoresDict = Dict()
 for rf in resultsFile   
     yrTmp = parse(Int,((split(rf,"."))[1]))
     fileTmp = open(string("./data/",rf))                     #each file pipe
     linesTmp = readlines(fileTmp)                            #read each file lines
-    namesDict[yrTmp] = split(linesTmp[1],r",|\n",keep=false)
+    namesDict[yrTmp] = split(linesTmp[1],r",|\n",keep=false) #store the name list
+    scoresDict[yrTmp] = split(linesTmp[2],r",|\n",keep=false)#STORE THE FIRST SCORE LINE!!!
+    close(fileTmp)
 end
 
 yr = stYr
@@ -105,9 +105,53 @@ while( (yr+windowSize) <= endYr )
 end
 print("__---__--")
 print(winDict)
-return
+
 
 #3-ACCUMULATE POINTS OF EACH PARTICULAR COUNTRY TOWARDS ANOTHER DIFFERENT COUNTRY
+yr = stYr
+while( (yr+windowSize) <= endYr )
+    winInd = 0
+    cntryNum = length(winDict["$(yr)-$(yr+windowSize)"]["countries"])
+    winDict["$(yr)-$(yr+windowSize)"]["scoremat"] = zeros(cntryNum,cntryNum)
+    while(winInd <= windowSize)        
+
+        matPrev = winDict["$(yr)-$(yr+windowSize)"]["scoremat"]
+        namesTotal = winDict["$(yr)-$(yr+windowSize)"]["countries"]
+	yrScores = scoresDict[yr+winInd]#1st year for now
+	
+	yrScores = [parse(Int,yrScores[ii])  for ii in 1:length(yrScores)]
+        print("---xxx---xxx---")
+	print(yrScores)
+	
+        yrNames = namesDict[yr+winInd]
+        print("---xxx'yrNames'xxx---")
+	print(yrNames)
+	
+        tmpInd = find(yrScores) #WHICH YRSCORES INDS ARE NON-ZERO 1st line
+	print("---xxx---xxx---")
+	print(tmpInd)
+	
+	tmpNames = yrNames[tmpInd]
+	print("---xxx'tmpNames'xxx---")
+	print(tmpNames)
+	return
+        for ii=1:length(namesTotal)
+            for jj=1:length(tmpNames)
+	        if(tmpNames[jj] == namesTotal[ii])
+		    
+                end
+	    end
+        end
+        winDict["$(yr)-$(yr+windowSize)"]["scoremat"] = matPrev
+
+        winInd = winInd + 1
+    end
+    yr = yr + windowSize
+end
+print("__---SCORESTUFF__--")
+print(winDict)
+
+return
 #4-THE RESULT IS A DICTIONARY OF YR WINDOWS, HOLDING A DICTIONARY CONTAINING A COUNTRY NAME LIST AND A  MATRIX OF DIRECTIONAL SCORES FOR THESE YEARS
 
 
