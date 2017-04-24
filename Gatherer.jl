@@ -125,55 +125,31 @@ while( (yr+windowSize) <= endYr )
 	matNew  = zeros(length(matPrev[:,1]),length(matPrev[1,:]))
         namesTotal = winDict["$(yr)-$(yr+windowSize)"]["countries"]	
 	yrScoresMat = scoresDict[string(yr+winInd)]#the matrix for a particular year (might not be nxn)
-	print("\n yrScoresMat")
-	print(yrScoresMat)		
+	print("\n yrScoresMat");print(yrScoresMat)		
 	
         yrNames = namesDict[yr+winInd]
-        print("\n---xxx'yrNames'xxx---")
-	print(yrNames)
-	       
-	print("\n---xxx'tmpIndMat'xxx---")
+        print("\n---xxx'yrNames'xxx---");print(yrNames)
+	       		
+	tmpIndsMatDict = Dict()#each entry is another row!		
+	newIndsMatYearDict = Dict()
+	for rowNum=1:length(yrScoresMat[:,1])#change the year nameInds to the total window Inds of names
+	    newIndsMat = []
+	    tmpIndsMatDict[rowNum] = find(yrScoresMat[rowNum,:])
+	    for ind=1:length(yrNames[tmpIndsMatDict[rowNum]])
+	    
+		tmpNamesMat = yrNames[tmpIndsMatDict[rowNum]]
+		#find the ind for each name inside namesTotal
+		newIndsMat = sort(append!(find([namesTotal[ii] == tmpNamesMat[ind] for ii in 1:length(namesTotal)]),newIndsMat))	
+		newIndsMatYearDict[rowNum] = newIndsMat
+	    end
+	end			
 	
-	tmpIndMat = find(yrScoresMat[1,:])#ONLY USING A SINGLE ROW!!!
-	tmpIndsMatDict = Dict()#each entry is another row!
-	for ii=1:length(yrScoresMat[:,1])
-	    tmpIndsMatDict[ii] = find(yrScoresMat[ii,:])
-	end
-	print(tmpIndsMatDict)
-	
-	print(tmpIndMat)			
-
-	newInds = []
-	newIndsMat = []
-	
-	
-	for ind=1:length(yrNames[tmpIndsMatDict[1]])
-	    tmpNamesMat = yrNames[tmpIndsMatDict[1]]
-	    #find the ind for each name inside namesTotal
-	    newIndsMat = append!(find([namesTotal[ii] == tmpNamesMat[ind] for ii in 1:length(namesTotal)]),newIndsMat)
-	    newIndsMat = sort(newIndsMat)
-	end
-	
-	print("\n---xxx'newIndsMat'xxx---")
-	print(newIndsMat)
-		return
-	tmpScoresMat = yrScoresMat[1,tmpIndMat]
-	print("\n---xxx'tmpScoresMat'xxx")
-	print(tmpScoresMat)
-	
-	matNew[1,newIndsMat] = tmpScoresMat
-	matNew = matNew       # * (1/(windowSize+1)) #+1 for the inclusion of the first year
-	print("\n---xxx'matNew'xxx---\n")
-	print(matNew[1,:])
-
-	print("\n---xxx'matNew FULL'xxx---\n")
-	print(matNew)
-	print("\n---xxx'matPrev FULL'xxx---\n")
-	print(matPrev)
+	matNew[1,newIndsMatYearDict[1]] = yrScoresMat[1,tmpIndsMatDict[1]]   #tmpScoresMat
+	print("\n---xxx'matNew'xxx---\n");print(matNew[1,:])	
+	print("\n---xxx'matNew FULL'xxx---\n");print(matNew);print("\n---xxx'matPrev FULL'xxx---\n");print(matPrev)
 	
         winDict["$(yr)-$(yr+windowSize)"]["scoremat"] = matPrev + matNew
-	print("\n---xxx'winDict'xxx---\n")
-	print(winDict)	
+	print("\n---xxx'winDict'xxx---\n");print(winDict)	
 	   # return#	
         winInd = winInd + 1
     end
