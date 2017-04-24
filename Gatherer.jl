@@ -92,19 +92,12 @@ for rf in resultsFile
     colNumMat = nameNum
     tmp2 = zeros(rowNumMat,colNumMat)
     for ii=2:length(linesTmp)
-	tmp1 = split(linesTmp[ii],r",|\n",keep=false)
-	
-	tmp2[ii-1,:] = [parse(Int,tmp1[jj]) for jj in 1:length(tmp1)]	     
+	tmp1 = split(linesTmp[ii],r",|\n",keep=false)	
+	tmp2[ii-1,:] = [parse(Int,tmp1[jj]) for jj in 1:length(tmp1)]	#each row of the matrix/data     
     end  	    	     
-    scoresDict[string(yrTmp)] = tmp2  
-    scoresDict[yrTmp] = split(linesTmp[2],r",|\n",keep=false)#STORE THE FIRST SCORE LINE!!!
-    
+    scoresDict[string(yrTmp)] = tmp2     
     close(fileTmp)
 end
-
-print("\n---xxx'scoresDict'xxx---\n")
-print(scoresDict)
-
 
 yr = stYr
 while( (yr+windowSize) <= endYr )
@@ -112,15 +105,13 @@ while( (yr+windowSize) <= endYr )
     while(winInd <= windowSize)        
 	new = namesDict[yr + winInd]
         prev = winDict["$(yr)-$(yr+windowSize)"]["countries"]
-        winDict["$(yr)-$(yr+windowSize)"]["countries"] = sort(unique(append!(prev,new)))
-    
+        winDict["$(yr)-$(yr+windowSize)"]["countries"] = sort(unique(append!(prev,new)))    
 	winInd = winInd + 1
     end
     yr = yr + windowSize
 end
 print("--xxx'winDict'xxx--")
 print(winDict)
-
 
 #3-ACCUMULATE POINTS OF EACH PARTICULAR COUNTRY TOWARDS ANOTHER DIFFERENT COUNTRY
 yr = stYr
@@ -132,54 +123,54 @@ while( (yr+windowSize) <= endYr )
 
         matPrev = winDict["$(yr)-$(yr+windowSize)"]["scoremat"]
 	matNew  = zeros(length(matPrev[:,1]),length(matPrev[1,:]))
-        namesTotal = winDict["$(yr)-$(yr+windowSize)"]["countries"]
-	yrScores = scoresDict[yr+winInd]#1st year for now
+        namesTotal = winDict["$(yr)-$(yr+windowSize)"]["countries"]	
 	yrScoresMat = scoresDict[string(yr+winInd)]#the matrix for a particular year (might not be nxn)
 	print("\n yrScoresMat")
-	print(yrScoresMat)
-	
-	yrScores = [parse(Int,yrScores[ii])  for ii in 1:length(yrScores)]
-        print("\n---xxx'yrScores'xxx---")
-	print(yrScores)
-	
+	print(yrScoresMat)		
 	
         yrNames = namesDict[yr+winInd]
         print("\n---xxx'yrNames'xxx---")
 	print(yrNames)
-	
-        tmpInd = find(yrScores) #WHICH YRSCORES INDS ARE NON-ZERO 1st line
+	       
 	print("\n---xxx'tmpIndMat'xxx---")
-	tmpIndMat = find(yrScoresMat[1,:])
-	print(tmpIndMat)
 	
-	tmpNames = yrNames[tmpInd]
-	print("\n---xxx'tmpNamesMat'xxx---")
-	tmpNamesMat = yrNames[tmpIndMat]
-	print(tmpNamesMat)
+	tmpIndMat = find(yrScoresMat[1,:])#ONLY USING A SINGLE ROW!!!
+	tmpIndsMatDict = Dict()#each entry is another row!
+	for ii=1:length(yrScoresMat[:,1])
+	    tmpIndsMatDict[ii] = find(yrScoresMat[ii,:])
+	end
+	print(tmpIndsMatDict)
 	
-	tmpNames = yrNames[tmpInd]
-	
+	print(tmpIndMat)			
 
 	newInds = []
 	newIndsMat = []
-	for ind=1:length(tmpNames)
-	    newInds = append!(find([namesTotal[ii] == tmpNames[ind] for ii in 1:length(namesTotal)]),newInds)
+	
+	
+	for ind=1:length(yrNames[tmpIndsMatDict[1]])
+	    tmpNamesMat = yrNames[tmpIndsMatDict[1]]
+	    #find the ind for each name inside namesTotal
 	    newIndsMat = append!(find([namesTotal[ii] == tmpNamesMat[ind] for ii in 1:length(namesTotal)]),newIndsMat)
+	    newIndsMat = sort(newIndsMat)
 	end
-	newIndsMat = sort(newIndsMat)
+	
 	print("\n---xxx'newIndsMat'xxx---")
 	print(newIndsMat)
-	
-	tmpScores = yrScores[tmpInd]
+		return
 	tmpScoresMat = yrScoresMat[1,tmpIndMat]
 	print("\n---xxx'tmpScoresMat'xxx")
 	print(tmpScoresMat)
 	
 	matNew[1,newIndsMat] = tmpScoresMat
-	matNew = matNew           # * (1/(windowSize+1)) #+1 for the inclusion of the first year
+	matNew = matNew       # * (1/(windowSize+1)) #+1 for the inclusion of the first year
 	print("\n---xxx'matNew'xxx---\n")
 	print(matNew[1,:])
-	        
+
+	print("\n---xxx'matNew FULL'xxx---\n")
+	print(matNew)
+	print("\n---xxx'matPrev FULL'xxx---\n")
+	print(matPrev)
+	
         winDict["$(yr)-$(yr+windowSize)"]["scoremat"] = matPrev + matNew
 	print("\n---xxx'winDict'xxx---\n")
 	print(winDict)	
@@ -188,7 +179,7 @@ while( (yr+windowSize) <= endYr )
     end
     yr = yr + windowSize
 end
-print("__---SCORESTUFF__--")
+print("\n __---SCORESTUFF__--")
 print(winDict)
 return
 
