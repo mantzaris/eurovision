@@ -87,9 +87,24 @@ for rf in resultsFile
     fileTmp = open(string("./data/",rf))                     #each file pipe
     linesTmp = readlines(fileTmp)                            #read each file lines
     namesDict[yrTmp] = split(linesTmp[1],r",|\n",keep=false) #store the name list
+    nameNum = length(namesDict[yrTmp])    
+    rowNumMat = length(linesTmp)-1
+    colNumMat = nameNum
+    tmp2 = zeros(rowNumMat,colNumMat)
+    for ii=2:length(linesTmp)
+	tmp1 = split(linesTmp[ii],r",|\n",keep=false)
+	
+	tmp2[ii-1,:] = [parse(Int,tmp1[jj]) for jj in 1:length(tmp1)]	     
+    end  	    	     
+    scoresDict[string(yrTmp)] = tmp2  
     scoresDict[yrTmp] = split(linesTmp[2],r",|\n",keep=false)#STORE THE FIRST SCORE LINE!!!
+    
     close(fileTmp)
 end
+
+print("\n---xxx'scoresDict'xxx---\n")
+print(scoresDict)
+
 
 yr = stYr
 while( (yr+windowSize) <= endYr )
@@ -119,51 +134,64 @@ while( (yr+windowSize) <= endYr )
 	matNew  = zeros(length(matPrev[:,1]),length(matPrev[1,:]))
         namesTotal = winDict["$(yr)-$(yr+windowSize)"]["countries"]
 	yrScores = scoresDict[yr+winInd]#1st year for now
+	yrScoresMat = scoresDict[string(yr+winInd)]#the matrix for a particular year (might not be nxn)
+	print("\n yrScoresMat")
+	print(yrScoresMat)
 	
 	yrScores = [parse(Int,yrScores[ii])  for ii in 1:length(yrScores)]
         print("\n---xxx'yrScores'xxx---")
 	print(yrScores)
+	
 	
         yrNames = namesDict[yr+winInd]
         print("\n---xxx'yrNames'xxx---")
 	print(yrNames)
 	
         tmpInd = find(yrScores) #WHICH YRSCORES INDS ARE NON-ZERO 1st line
-	print("\n---xxx'tmpInd'xxx---")
-	print(tmpInd)
+	print("\n---xxx'tmpIndMat'xxx---")
+	tmpIndMat = find(yrScoresMat[1,:])
+	print(tmpIndMat)
 	
 	tmpNames = yrNames[tmpInd]
-	print("\n---xxx'tmpNames'xxx---")
-	print(tmpNames)
+	print("\n---xxx'tmpNamesMat'xxx---")
+	tmpNamesMat = yrNames[tmpIndMat]
+	print(tmpNamesMat)
+	
+	tmpNames = yrNames[tmpInd]
+	
 
 	newInds = []
+	newIndsMat = []
 	for ind=1:length(tmpNames)
 	    newInds = append!(find([namesTotal[ii] == tmpNames[ind] for ii in 1:length(namesTotal)]),newInds)
+	    newIndsMat = append!(find([namesTotal[ii] == tmpNamesMat[ind] for ii in 1:length(namesTotal)]),newIndsMat)
 	end
-	newInds = sort(newInds)
-	print("\n---xxx'newInds'xxx---")
-	print(newInds)
-
+	newIndsMat = sort(newIndsMat)
+	print("\n---xxx'newIndsMat'xxx---")
+	print(newIndsMat)
+	
 	tmpScores = yrScores[tmpInd]
-	print("\n---xxx'tmpScores'xxx")
-	print(tmpScores)
-	matNew[1,newInds] = tmpScores
+	tmpScoresMat = yrScoresMat[1,tmpIndMat]
+	print("\n---xxx'tmpScoresMat'xxx")
+	print(tmpScoresMat)
+	
+	matNew[1,newIndsMat] = tmpScoresMat
 	matNew = matNew           # * (1/(windowSize+1)) #+1 for the inclusion of the first year
 	print("\n---xxx'matNew'xxx---\n")
 	print(matNew[1,:])
 	        
         winDict["$(yr)-$(yr+windowSize)"]["scoremat"] = matPrev + matNew
 	print("\n---xxx'winDict'xxx---\n")
-	print(winDict)
-	return#
+	print(winDict)	
+	   # return#	
         winInd = winInd + 1
     end
     yr = yr + windowSize
 end
 print("__---SCORESTUFF__--")
 print(winDict)
-
 return
+
 #4-THE RESULT IS A DICTIONARY OF YR WINDOWS, HOLDING A DICTIONARY CONTAINING A COUNTRY NAME LIST AND A  MATRIX OF DIRECTIONAL SCORES FOR THESE YEARS
 
 
