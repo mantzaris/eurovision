@@ -50,23 +50,6 @@ end
 
 #FOR EACH TIME WINDOW
 function avgWindowScore(stYr,endYr,windowSize)
-windowAvgDict = Dict()
-resultsFile = readdir("./data/")
-for rf in resultsFile                                        #each file
-    yrTmp = parse(Int,((split(rf,"."))[1]))
-    if(yrTmp >= stYr && yrTmp <= endYr)    
-	fileTmp = open(string("./data/",rf))                     #each file pipe
-	linesTmp = readlines(fileTmp)                            #read each file lines
-	countryNumTmp = length(split(linesTmp[1],","))           #head line of cntry names
-	matTmp = zeros(countryNumTmp,countryNumTmp)              #init mat
-	strNumLines = [split(linesTmp[ii],r",|\n",keep=false) for ii in 2:length(linesTmp)]
-	for ii = 1:length(strNumLines)
-	    matTmp[ii,:] = [parse(Int,strNumLines[ii][jj]) for jj in 1:length(strNumLines[ii])]	    
-        end
-	#windowAvgDictTmp[yrTmp] = matTmp #the allocation per year
-	close(fileTmp)
-    end
-end
 
 #1-DICTIONARY FOR EACH WINDOW INTERVAL
 winDict = Dict()
@@ -77,7 +60,7 @@ while( (yr+windowSize) <= endYr )
     winDict["$(yr)-$(yr+windowSize)"]["scoremat"] = []
     yr = yr + windowSize
 end
-#print(winDict)
+
 #2-FILL DICTIONARY WITH ALL POSSIBLE COUNTRY PAIRS IN THOSE YEARS IT COVERS
 resultsFile = readdir("./data/")
 namesDict = Dict()
@@ -117,83 +100,48 @@ print(winDict)
 yr = stYr
 while( (yr+windowSize) <= endYr )
     winInd = 0
-    cntryNum = length(winDict["$(yr)-$(yr+windowSize)"]["countries"])
-    winDict["$(yr)-$(yr+windowSize)"]["scoremat"] = zeros(cntryNum,cntryNum)
+    cntryNum = length(winDict["$(yr)-$(yr+windowSize)"]["countries"])#WILL BECOME ARRAAY FOR ROW AND COL SIZE
+    
+    winDict["$(yr)-$(yr+windowSize)"]["scoremat"] = zeros(cntryNum,cntryNum)#WILL BECOME ASSYMETRIC!!!
     while(winInd <= windowSize)        
 
         matPrev = winDict["$(yr)-$(yr+windowSize)"]["scoremat"]
 	matNew  = zeros(length(matPrev[:,1]),length(matPrev[1,:]))
         namesTotal = winDict["$(yr)-$(yr+windowSize)"]["countries"]	
-	yrScoresMat = scoresDict[string(yr+winInd)]#the matrix for a particular year (might not be nxn)
-	print("\n yrScoresMat");print(yrScoresMat)		
+	yrScoresMat = scoresDict[string(yr+winInd)]#the matrix for a PARTICULAR YEAR (might not be nxn)
+	#=
+	print("\n--- year---$(yr+winInd)")
+	print("\n ---'matprev'---");print(matPrev)	
+	print("\n ---'yrScoresMat'---");print(yrScoresMat)
+	=#
 	
-        yrNames = namesDict[yr+winInd]
-        print("\n---xxx'yrNames'xxx---");print(yrNames)
-	       		
-	tmpIndsMatDict = Dict()#each entry is another row!		
-	newIndsMatYearDict = Dict()
+        yrNames = namesDict[yr+winInd]        
+	       			
 	for rowNum=1:length(yrScoresMat[:,1])#change the year nameInds to the total window Inds of names
-	    newIndsMat = []
-	    tmpIndsMatDict[rowNum] = find(yrScoresMat[rowNum,:])
-	    for ind=1:length(yrNames[tmpIndsMatDict[rowNum]])
-	    
-		tmpNamesMat = yrNames[tmpIndsMatDict[rowNum]]
-		#find the ind for each name inside namesTotal
+	    newIndsMat = []	    
+	    for ind=1:length(find(yrScoresMat[rowNum,:]))	    
+		tmpNamesMat = yrNames[find(yrScoresMat[rowNum,:])]	
 		newIndsMat = sort(append!(find([namesTotal[ii] == tmpNamesMat[ind] for ii in 1:length(namesTotal)]),newIndsMat))	
-		newIndsMatYearDict[rowNum] = newIndsMat
 	    end
-	end			
-	
-	matNew[1,newIndsMatYearDict[1]] = yrScoresMat[1,tmpIndsMatDict[1]]   #tmpScoresMat
-	print("\n---xxx'matNew'xxx---\n");print(matNew[1,:])	
-	print("\n---xxx'matNew FULL'xxx---\n");print(matNew);print("\n---xxx'matPrev FULL'xxx---\n");print(matPrev)
-	
+	    rowNumNew = find([namesTotal[ii] == yrNames[rowNum] for ii in 1:length(namesTotal)])
+	    matNew[rowNumNew,newIndsMat] = yrScoresMat[rowNum,find(yrScoresMat[rowNum,:])]	    
+	end				
+	#=
+	print("\n ---'matNew'---");print(matNew)
+	print("\n ---matNew+matPrev---\n");print(matNew+matPrev)
+	print(winDict["$(yr)-$(yr+windowSize)"]["countries"])
+	=#	
         winDict["$(yr)-$(yr+windowSize)"]["scoremat"] = matPrev + matNew
-	print("\n---xxx'winDict'xxx---\n");print(winDict)	
-	   # return#	
+		
         winInd = winInd + 1
     end
     yr = yr + windowSize
 end
-print("\n __---SCORESTUFF__--")
+print("\n __---winDict__--")
 print(winDict)
-return
-
-#4-THE RESULT IS A DICTIONARY OF YR WINDOWS, HOLDING A DICTIONARY CONTAINING A COUNTRY NAME LIST AND A  MATRIX OF DIRECTIONAL SCORES FOR THESE YEARS
+return winDict
 
 
-
-#=
-#put the years into chunks for the window
-yr = stYr
-while( (yr+windowSize) <= endYr )
-    winInd = 0
-    #yearScaledTmpPrev = 0
-    while(winInd <= windowSize)
-        
-	yearScaledTmp = (windowAvgDictTmp[yr+winInd]) * (1/(windowSize+1))
-
-	if(winInd == 0)	 
-	   windowAvgDict["$(yr)-$(yr+windowSize)"] = yearScaledTmp	 
-	   yearScaledTmpPrev = yearScaledTmp
-	elseif(winInd > 0)
-          for ii=1:length(yearScaledTmpPrev[:,1])
-	    for jj=1:length(yearScaledTmpPrev[1,:])
-              yearScaledTmpPrev[ii,jj] = yearScaledTmpPrev[ii,jj]
-          end
-          
-          
-	  #windowAvgDict["$(yr)-$(yr+windowSize)"] =
-	  
-	end
-	winInd = winInd + 1
-        #yearScaledTmpPrev = yearScaledTmp + yearScaledTmpPrev
-    end
-    yr = yr + windowSize    
-end
-=#
-
-#print( windowAvgDict)
 end
 
 
