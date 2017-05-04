@@ -202,8 +202,11 @@ end
 #THRESHOLD FOR EACH TIME WINDOW
 function Allocated(stYr,endYr,countryYearsNum)
 
-SCORES = [12,10,8,7,6,5,4,3,2,1]
 
+SCORES1 = [3,2,1]
+SCORES2 = [5,4,3,2,1]
+SCORES3 = [12,10,8,7,6,5,4,3,2,1]
+    
 AVG_SIMULATION = []
 iterNum = 250
 confInd5perc = max(1,floor(Int,0.05*iterNum))
@@ -213,7 +216,17 @@ for ii = 1:iterNum
     for yr = stYr:endYr
 	NUM = countryYearsNum[yr]#number of countries voting that year	
 	position = ceil(rand(1,1)*NUM)	
-	
+
+        if(yr >= 1975 && yr <= 2016)
+            SCORES = SCORES3
+        elseif(yr == 1962)
+            SCORES = SCORES1
+        elseif(yr == 1963)
+            SCORES = SCORES2
+        else
+            SCORES = SCORES3
+        end
+        
 	if position[1] <= length(SCORES)
 	   score = SCORES[position]	       
 	else
