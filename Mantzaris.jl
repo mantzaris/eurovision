@@ -1,4 +1,4 @@
-function analyzeEVdata(stYr = 1975,endYr = 1980,windowSize = 5)
+function Mantzaris(stYr = 1975,endYr = 1980,windowSize = 5)
 
 #load the data and add to a dictionary the number of countries in the year range
 countryYearsNum = Dict{Integer,Integer}()
@@ -34,7 +34,7 @@ end
 windowConf = Dict() #the threshold for significance in each year of window
 yr = stYr
 while( (yr+windowSize) <= endYr )
-    conf5perc = Allocated(yr,yr+windowSize,countryYearsNum)#what a typical scenario of unbiased voting towards candidate set of receivers
+    conf5perc = scoreSim(yr,yr+windowSize,countryYearsNum)#what a typical scenario of unbiased voting towards candidate set of receivers
     yr = yr + windowSize
     windowConf[string(yr-windowSize,"-",yr)] = conf5perc
 end
@@ -199,47 +199,51 @@ end
 
 
 
-#THRESHOLD FOR EACH TIME WINDOW; looking at each year in the range-> for each year draw a hypothetical score -> from the applicable voting paradigm -> accumulate the score
-function Allocated(stYr,endYr,countryYearsNum)
-
-SCORES1 = [3,2,1]
-SCORES2 = [5,4,3,2,1]
-SCORES3 = [12,10,8,7,6,5,4,3,2,1]
-    
-AVG_SIMULATION = []
-iterNum = 250
-confInd5perc = max(1,floor(Int,0.05*iterNum))
-
-for ii = 1:iterNum
-    ONE_SIMULATION = []
-    for yr = stYr:endYr
-	NUM = countryYearsNum[yr]#number of countries voting that year	
-	position = ceil(rand(1,1)*NUM)	
-
-        if(yr >= 1975 && yr <= 2016)
-            SCORES = SCORES3
-        elseif(yr == 1962)
-            SCORES = SCORES1
-        elseif(yr == 1963)
-            SCORES = SCORES2
-        else
-            SCORES = SCORES3
+#THRESHOLD FOR EACH TIME WINDOW; looking at each year in the range-> for each year draw a hypothetical score -> from the applicable voting paradigm -> accumulate the score (I will simulate each year independently from stYr:endYr choosing the appropriate scheme each time
+function scoreSim(stYr,endYr,countryYearsNum)
+    AVG_SIMULATION = []
+    iterNum = 250
+    confInd5perc = max(1,floor(Int,0.05*iterNum))
+    for ii = 1:iterNum
+        ONE_SIMULATION = []
+        for yr = stYr:endYr
+            NUM = countryYearsNum[yr]#number of countries voting that year
+	    if(yr >= 1975 || yr == 1963 || yr == 1962) 
+                score = Allocated(yr,NUM)
+            else
+                score = Allocated(-1,NUM)
+            end
+            append!(ONE_SIMULATION,[score])
         end
-        
-	if position[1] <= length(SCORES)
-	   score = SCORES[position]	       
-	else
-	   score = 0
-	end
-	append!(ONE_SIMULATION,[score])
-
+        avgSim = mean(ONE_SIMULATION)
+        append!(AVG_SIMULATION,[avgSim])
     end
-    avgSim = mean(ONE_SIMULATION)
-    append!(AVG_SIMULATION,[avgSim])
-    
+    sortedAVG_SIMULATION = sort(AVG_SIMULATION,rev=true)
+    conf5perc = sortedAVG_SIMULATION[confInd5perc]
+    return conf5perc    
+end                  
+
+function Allocated(yr,NUM)
+    SCORES1 = [3,2,1]
+    SCORES2 = [5,4,3,2,1]
+    SCORES3 = [12,10,8,7,6,5,4,3,2,1]
+    position = ceil(rand(1,1)*NUM)	
+    if(yr >= 1975 && yr <= 2016)
+        SCORES = SCORES3
+    elseif(yr == 1962)
+        SCORES = SCORES1
+    elseif(yr == 1963)
+        SCORES = SCORES2
+    else
+        SCORES = SCORES3
+    end    
+    if position[1] <= length(SCORES)
+       score = SCORES[position]	       
+    else
+       score = 0
+    end
+    return score
 end
 
-sortedAVG_SIMULATION = sort(AVG_SIMULATION,rev=true)
-conf5perc = sortedAVG_SIMULATION[confInd5perc]
-return conf5perc
-end
+
+
