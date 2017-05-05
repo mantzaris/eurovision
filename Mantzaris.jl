@@ -210,6 +210,8 @@ function scoreSim(stYr,endYr,countryYearsNum)
             NUM = countryYearsNum[yr]#number of countries voting that year
 	    if(yr >= 1975 || yr == 1963 || yr == 1962) 
                 score = Allocated(yr,NUM)
+            elseif(yr >= 1964 && yr <= 1966)
+                score = Sequential(yr,NUM)
             else
                 score = Allocated(-1,NUM)
             end
@@ -222,6 +224,26 @@ function scoreSim(stYr,endYr,countryYearsNum)
     conf5perc = sortedAVG_SIMULATION[confInd5perc]
     return conf5perc    
 end                  
+
+#here each country can receive a set of scores with consecutive points awarded
+#in sequence for that year it has an equal chance of receiving each score
+function Sequential(yr,NUM)
+    SCORES1 = [5,3,1]
+    score = 0
+    #so we iterate through the scores to see how many of the points we amass
+    if(yr >= 1964 && yr <= 1966)
+        for ii=1:length(SCORES1)
+            position = ceil(rand(1,1)*NUM)
+            if(position == 1)
+                score = SCORES1[ii] + score                            
+            end                                        
+        end
+    end
+    return score
+    
+end
+
+
 
 function Allocated(yr,NUM)
     SCORES1 = [3,2,1]
