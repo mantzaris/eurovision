@@ -68,7 +68,7 @@ function countryCollusion(stYr,endYr,windowSize,windowConf,winDicts)
 	collusionDict["$(yr)-$(yr + windowSize)"] = []
 	for ii=1:(size(scoremat)[1])
 	    for jj=1:(size(scoremat)[2])
-		if(scorematAVG[ii,jj] >= threshold)
+		if(scorematAVG[ii,jj] > threshold)
 		    c1 = cntryNames[ii]
 		    c2 = cntryNames[jj]
 		    prev = collusionDict["$(yr)-$(yr + windowSize)"]
@@ -202,7 +202,7 @@ end
 #THRESHOLD FOR EACH TIME WINDOW; looking at each year in the range-> for each year draw a hypothetical score -> from the applicable voting paradigm -> accumulate the score (I will simulate each year independently from stYr:endYr choosing the appropriate scheme each time
 function scoreSim(stYr,endYr,countryYearsNum)
     AVG_SIMULATION = []
-    iterNum = 250
+    iterNum = 2500
     confInd5perc = max(1,floor(Int,0.05*iterNum))
     for ii = 1:iterNum
         ONE_SIMULATION = []
@@ -234,8 +234,8 @@ function Sequential(yr,NUM)
     if(yr >= 1964 && yr <= 1966)
         for ii=1:length(SCORES1)
             position = ceil(rand(1,1)*NUM)
-            if(position == 1)
-                score = SCORES1[ii] + score                            
+            if([position][1] == 1)
+                score = SCORES1[ii] + score
             end                                        
         end
     end
