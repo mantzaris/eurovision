@@ -202,7 +202,7 @@ end
 #THRESHOLD FOR EACH TIME WINDOW; looking at each year in the range-> for each year draw a hypothetical score -> from the applicable voting paradigm -> accumulate the score (I will simulate each year independently from stYr:endYr choosing the appropriate scheme each time
 function scoreSim(stYr,endYr,countryYearsNum)
     AVG_SIMULATION = []
-    iterNum = 2500
+    iterNum = 250
     confInd5perc = max(1,floor(Int,0.05*iterNum))
     for ii = 1:iterNum
         ONE_SIMULATION = []
@@ -210,8 +210,10 @@ function scoreSim(stYr,endYr,countryYearsNum)
             NUM = countryYearsNum[yr]#number of countries voting that year
 	    if(yr >= 1975 || yr == 1963 || yr == 1962) 
                 score = Allocated(yr,NUM)
-            elseif(yr >= 1964 && yr <= 1966)
+            elseif( (1964<=yr<= 1966) || yr==1974 || (1967<=yr<=1970) || (1957<=yr<=1961))
                 score = Sequential(yr,NUM)
+            elseif(1971<=yr<=1973)
+                score = Rated(yr,NUM)
             else
                 score = Allocated(-1,NUM)
             end
@@ -229,13 +231,21 @@ end
 #in sequence for that year it has an equal chance of receiving each score
 function Sequential(yr,NUM)
     SCORES1 = [5,3,1]
+    SCORES2 = ones(Int,1,10)
     score = 0
     #so we iterate through the scores to see how many of the points we amass
-    if(yr >= 1964 && yr <= 1966)
+    if( 1964 <= yr <= 1966)
         for ii=1:length(SCORES1)
             position = ceil(rand(1,1)*NUM)
             if([position][1] == 1)
                 score = SCORES1[ii] + score
+            end                                        
+        end
+    elseif(yr==1974 || (1967<=yr<=1970) || (1957<=yr<=1961))
+        for ii=1:length(SCORES2)
+            position = ceil(rand(1,1)*NUM)
+            if([position][1] == 1)
+                score = SCORES2[ii] + score
             end                                        
         end
     end
@@ -268,4 +278,12 @@ function Allocated(yr,NUM)
 end
 
 
-
+function Rated(yr,NUM)
+    SCORES1 = [5,4,3,2,1]
+    if(1971<=yr<=1973)
+        X1 = SCORES1[rand(1:end)]
+        X2 = SCORES1[rand(1:end)]
+    end
+    score = X1 + X2
+    return score
+end
