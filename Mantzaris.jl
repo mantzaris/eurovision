@@ -46,7 +46,7 @@ winDicts = windowScores(stYr,endYr,windowSize)
 print(winDicts)
 
 collusionDict = countryCollusion(stYr,endYr,windowSize,windowConf,winDicts)
-
+print("collusion Dict:\n")
 print(collusionDict)
 end
 
@@ -65,18 +65,31 @@ function countryCollusion(stYr,endYr,windowSize,windowConf,winDicts)
 	scoremat = winDicts["$(yr)-$(yr + windowSize)"]["scoremat"]
 	scorematAVG = scoremat * (1/(windowSize+1))
 	
-	collusionDict["$(yr)-$(yr + windowSize)"] = []
+	collusionDict["1way:$(yr)-$(yr + windowSize)"] = []
+        collusionDict["2way:$(yr)-$(yr + windowSize)"] = []
 	for ii=1:(size(scoremat)[1])
 	    for jj=1:(size(scoremat)[2])
-		if(scorematAVG[ii,jj] > threshold)
+		if(scorematAVG[ii,jj] >= threshold)
 		    c1 = cntryNames[ii]
 		    c2 = cntryNames[jj]
-		    prev = collusionDict["$(yr)-$(yr + windowSize)"]
-		    
+		    prev = collusionDict["1way:$(yr)-$(yr + windowSize)"]		    
 		    new = append!(prev, ["$(c1)-$(c2)"])
-		    collusionDict["$(yr)-$(yr + windowSize)"] = new
+		    collusionDict["1way:$(yr)-$(yr + windowSize)"] = new
 		end
 	    end
+	end
+        for ii=1:(size(scoremat)[1])
+	    for jj=1:(size(scoremat)[2])
+                if(jj>ii)
+                    if((scorematAVG[ii,jj] >= threshold) && (scorematAVG[jj,ii] >= threshold))
+                        c1 = cntryNames[ii]
+                        c2 = cntryNames[jj]
+                        prev = collusionDict["2way:$(yr)-$(yr + windowSize)"]		    
+                        new = append!(prev, ["$(c1)-$(c2)"])
+                        collusionDict["2way:$(yr)-$(yr + windowSize)"] = new
+                    end
+                end
+            end
 	end
 	yr = yr + windowSize
     end
