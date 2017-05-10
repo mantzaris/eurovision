@@ -1,53 +1,54 @@
 function Mantzaris(stYr = 1975,endYr = 1980,windowSize = 5)
 
-#load the data and add to a dictionary the number of countries in the year range
-countryYearsNum = Dict{Integer,Integer}()
-resultsFile = readdir("./dataTables/")
-yrMin = 100000
-yrMax = -1
-for rf in resultsFile
-    fileTmp = open(string("./dataTables/",rf))
-    linesTmp = readlines(fileTmp)         #readfile lines
-    yrTmp = parse(Int,((split(rf,"."))[1]))
-    countryNumTmp = length(split(linesTmp[1],",")) - 1#COLUMN NAME LIST (still the same regarding large set mapping to small set in cols) OF WHO CAN RECEIVE VOTES
-    countryYearsNum[yrTmp] = countryNumTmp #NUM that receives votes
-    close(fileTmp)
-    if(yrTmp < yrMin)
-        yrMin = yrTmp
+    #load the data and add to a dictionary the number of countries in the year range
+    countryYearsNum = Dict{Integer,Integer}()
+    resultsFile = readdir("./dataTables/")
+    yrMin = 100000
+    yrMax = -1
+    for rf in resultsFile
+        fileTmp = open(string("./dataTables/",rf))
+        linesTmp = readlines(fileTmp)         #readfile lines
+        yrTmp = parse(Int,((split(rf,"."))[1]))
+        countryNumTmp = length(split(linesTmp[1],",")) - 1#COLUMN NAME LIST (still the same regarding large set mapping to small set in cols) OF WHO CAN RECEIVE VOTES
+        countryYearsNum[yrTmp] = countryNumTmp #NUM that receives votes
+        close(fileTmp)
+        if(yrTmp < yrMin)
+            yrMin = yrTmp
+        end
+        if(yrTmp > yrMax)
+            yrMax = yrTmp
+        end
     end
-    if(yrTmp > yrMax)
-        yrMax = yrTmp
+
+    #sanity check input years
+    if( endYr < stYr || stYr < yrMin || endYr > yrMax )
+        print(string("year range improperly set, for the analysis end year must be greater than start and the smallest year is $(yrMin) and largest $(yrMax) with smallest first"))
+        return
     end
-end
+    if( (stYr+windowSize) > endYr)
+        print("not enough years between start and end for analysis")
+        return
+    end
 
-#sanity check input years
-if( endYr < stYr || stYr < yrMin || endYr > yrMax )
-    print(string("year range improperly set, for the analysis end year must be greater than start and the smallest year is $(yrMin) and largest $(yrMax) with smallest first"))
-    return
-end
-if( (stYr+windowSize) > endYr)
-    print("not enough years between start and end for analysis")
-    return
-end
+    #THRESHOLDS
+    windowConf = Dict() #the threshold for significance in each year of window
+    yr = stYr
+    while( (yr+windowSize) <= endYr )
+        conf5perc = scoreSim(yr,yr+windowSize,countryYearsNum)#what a typical scenario of unbiased voting towards candidate set of receivers
+        yr = yr + windowSize
+        windowConf[string(yr-windowSize,"-",yr)] = conf5perc
+    end
 
-#THRESHOLDS
-windowConf = Dict() #the threshold for significance in each year of window
-yr = stYr
-while( (yr+windowSize) <= endYr )
-    conf5perc = scoreSim(yr,yr+windowSize,countryYearsNum)#what a typical scenario of unbiased voting towards candidate set of receivers
-    yr = yr + windowSize
-    windowConf[string(yr-windowSize,"-",yr)] = conf5perc
-end
+    #MATRIX WINDOW AVGS
 
-#MATRIX WINDOW AVGS
+    print(windowConf)
+    winDicts = windowScores(stYr,endYr,windowSize)
+    print(winDicts)
 
-print(windowConf)
-winDicts = windowScores(stYr,endYr,windowSize)
-print(winDicts)
-
-collusionDict = countryCollusion(stYr,endYr,windowSize,windowConf,winDicts)
-print("collusion Dict:\n")
-print(collusionDict)
+    collusionDict = countryCollusion(stYr,endYr,windowSize,windowConf,winDicts)
+    print("collusion Dict:\n")
+    print(collusionDict)
+    return collusionDict
 end
 
 
@@ -59,8 +60,8 @@ function countryCollusion(stYr,endYr,windowSize,windowConf,winDicts)
     yr = stYr
     while( (yr+windowSize) <= endYr )
 
-	threshold = windowConf["$(yr)-$(yr + windowSize)"]
-
+	tmp = windowConf["$(yr)-$(yr + windowSize)"]
+        threshold = tmp[2]
 	cntryNames = winDicts["$(yr)-$(yr + windowSize)"]["countries"]
 	scoremat = winDicts["$(yr)-$(yr + windowSize)"]["scoremat"]
 	scorematAVG = scoremat * (1/(windowSize+1))
@@ -78,10 +79,11 @@ function countryCollusion(stYr,endYr,windowSize,windowConf,winDicts)
 		end
 	    end
 	end
+        threshold1 = tmp[1]
         for ii=1:(size(scoremat)[1])
 	    for jj=1:(size(scoremat)[2])
                 if(jj>ii)
-                    if((scorematAVG[ii,jj] >= threshold) && (scorematAVG[jj,ii] >= threshold))
+                    if((scorematAVG[ii,jj] >= threshold1) && (scorematAVG[jj,ii] >= threshold1))
                         c1 = cntryNames[ii]
                         c2 = cntryNames[jj]
                         prev = collusionDict["2way:$(yr)-$(yr + windowSize)"]		    
@@ -215,8 +217,9 @@ end
 #THRESHOLD FOR EACH TIME WINDOW; looking at each year in the range-> for each year draw a hypothetical score -> from the applicable voting paradigm -> accumulate the score (I will simulate each year independently from stYr:endYr choosing the appropriate scheme each time
 function scoreSim(stYr,endYr,countryYearsNum)
     AVG_SIMULATION = []
-    iterNum = 250
+    iterNum = 1250
     confInd5perc = max(1,floor(Int,0.05*iterNum))
+    confInd10perc = max(1,floor(Int,0.1*iterNum))
     for ii = 1:iterNum
         ONE_SIMULATION = []
         for yr = stYr:endYr
@@ -237,7 +240,8 @@ function scoreSim(stYr,endYr,countryYearsNum)
     end
     sortedAVG_SIMULATION = sort(AVG_SIMULATION,rev=true)
     conf5perc = sortedAVG_SIMULATION[confInd5perc]
-    return conf5perc    
+    conf10perc = sortedAVG_SIMULATION[confInd10perc]
+    return [conf10perc,conf5perc]
 end                  
 
 #here each country can receive a set of scores with consecutive points awarded
