@@ -79,7 +79,7 @@ function countryCollusion(stYr,endYr,windowSize,windowConf,winDicts)
 		end
 	    end
 	end
-        threshold1 = tmp[1]
+        threshold1 = tmp[2]
         for ii=1:(size(scoremat)[1])
 	    for jj=1:(size(scoremat)[2])
                 if(jj>ii)
@@ -217,7 +217,7 @@ end
 #THRESHOLD FOR EACH TIME WINDOW; looking at each year in the range-> for each year draw a hypothetical score -> from the applicable voting paradigm -> accumulate the score (I will simulate each year independently from stYr:endYr choosing the appropriate scheme each time
 function scoreSim(stYr,endYr,countryYearsNum)
     AVG_SIMULATION = []
-    iterNum = 250
+    iterNum = 200
     confInd5perc = max(1,floor(Int,0.05*iterNum))
     confInd10perc = max(1,floor(Int,0.1*iterNum))
     for ii = 1:iterNum
