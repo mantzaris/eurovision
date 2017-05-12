@@ -14,13 +14,54 @@ function demo(stYr=1975,endYr=1985,windowSize=5)
         network = "digraph{"
         yrs = string("years","$(yr)","to","$(yr + windowSize)")# to "# $(yr + windowSize)"
         network = string(network,string(" graph [label=","$(yrs)",", fontsize=34]; "))
-        network = string(network,string("Greece,Montenegro,Cyprus,Albania,Bulgaria,Croatia,BosniaHerzegovina,Turkey,FYRMacedonia,Romania,Serbia  [style=filled,fillcolor=darkgoldenrod1]; "))
-        network = string(network,string("UnitedKingdom,Ireland,Belgium,France [style=filled,fillcolor=darkslategray2]; "))
-        network = string(network,string("Iceland,Denmark,Norway,Sweden,Finland [style=filled,fillcolor=dodgerblue]; "))
-        network = string(network,string("Estonia,Lithuania,Latvia [style=filled,fillcolor=darkolivegreen1]; "))
-        network = string(network,string("Germany,Austria,TheNetherlands,Switzerland,Slovenia,CzechRepublic,Hungary [style=filled,fillcolor=yellow]; "))
-        network = string(network,string("Portugal,Spain,Malta,SanMarino,Andorra,Monaco,Morocco,Italy [style=filled,fillcolor=red]; "))
-        network = string(network,string("Russia,Ukraine,Moldova,Belarus,Poland,Georgia,Armenia [style=filled,fillcolor=olivedrab3]; "))
+                     
+        seenC = []
+        east = ["Russia","Ukraine","Moldova","Belarus","Poland","Georgia","Armenia","Azerbaijan","Estonia","Lithuania","Latvia"]
+        southWest = ["Portugal","Spain","Malta","SanMarino","Andorra","Monaco","Morocco","Italy"]
+        north = ["Iceland","Denmark","Norway","Sweden","Finland"]
+        northWest = ["UnitedKingdom","Ireland","Belgium","France"]
+        central = ["Germany","Austria","TheNetherlands","Switzerland","Slovenia","CzechRepublic","Hungary"]
+        southEast = ["Greece","Montenegro","Cyprus","Albania","Bulgaria","Croatia","BosniaHerzegovina","Turkey","FYRMacedonia","Romania","Serbia","Israel"]
+        for pair in oneWays
+            pair = replace(pair,"&","")
+            pair = replace(pair,".","")
+            pairTmp = split(pair,'-')
+            pairTmp[1] =  replace(pairTmp[1]," ","")
+            pairTmp[2] =  replace(pairTmp[2]," ","")
+            if(!(pairTmp[1] in seenC))
+                if(pairTmp[1] in east)
+                    network = string(network,string(pairTmp[1]," [style=filled,fillcolor=olivedrab3]; "))
+                elseif(pairTmp[1] in southWest)
+                    network = string(network,string(pairTmp[1]," [style=filled,fillcolor=indianred1]; "))
+                elseif(pairTmp[1] in north)
+                    network = string(network,string(pairTmp[1]," [style=filled,fillcolor=dodgerblue]; "))
+                elseif(pairTmp[1] in northWest)
+                    network = string(network,string(pairTmp[1]," [style=filled,fillcolor=darkslategray2]; "))
+                elseif(pairTmp[1] in central)
+                    network = string(network,string(pairTmp[1]," [style=filled,fillcolor=gray]; "))
+                elseif(pairTmp[1] in southEast)
+                    network = string(network,string(pairTmp[1]," [style=filled,fillcolor=darkgoldenrod1]; "))    
+                end
+                seenC = [seenC,pairTmp[1]]    
+            end
+            if(!(pairTmp[2] in seenC))
+                if(pairTmp[2] in east)
+                    network = string(network,string(pairTmp[2]," [style=filled,fillcolor=olivedrab3]; "))
+                elseif(pairTmp[2] in southWest)
+                    network = string(network,string(pairTmp[2]," [style=filled,fillcolor=indianred1]; "))
+                elseif(pairTmp[2] in north)
+                    network = string(network,string(pairTmp[2]," [style=filled,fillcolor=dodgerblue]; "))
+                elseif(pairTmp[2] in northWest)
+                    network = string(network,string(pairTmp[2]," [style=filled,fillcolor=darkslategray2]; "))
+                elseif(pairTmp[2] in central)
+                    network = string(network,string(pairTmp[2]," [style=filled,fillcolor=gray]; "))
+                elseif(pairTmp[2] in southEast)
+                    network = string(network,string(pairTmp[2]," [style=filled,fillcolor=darkgoldenrod1]; "))
+                end
+                seenC = [seenC,pairTmp[2]]  
+            end
+        end
+
         collusion1 = []
         for (ind,pair) in enumerate(twoWays)
             print(pair);print("\n")
