@@ -176,14 +176,16 @@ end
 
 for entry in repeatWinds
     keyTmp = entry[1]
-    weight = entry[2]*1.5
-    edgeName = string(keyTmp," [penwidth=$(weight)];")
-    network = string(network,edgeName)
+   # if(entry[2] >= ceil((0.33)*windowSize))
+        weight = entry[2]*1.5
+        edgeName = string(keyTmp," [penwidth=$(weight)];")
+        network = string(network,edgeName)
+    #end
 end
     network = string(network,"}")
-    fileName = string("networkTotal",":$(stYr)-$(endYr)",".dot")
+    fileName = string("networkTotal",":$(stYr)-$(endYr)","windowSize$(windowSize)",".dot")
     print(fileName)
-    filePNG = string("networkTotal",":$(stYr)-$(endYr)",".png")
+    filePNG = string("networkTotal",":$(stYr)-$(endYr)","windowSize$(windowSize)",".png")
     print(filePNG)
     writedlm(string("./",fileName), [network])
 
@@ -268,14 +270,14 @@ end
 
 for entry in repeatWinds
     keyTmp = entry[1]
-    weight = entry[2]*2.5
+    weight = entry[2]*3
     edgeName = string(keyTmp," [dir=both color=red penwidth=3 penwidth=$(weight)];")
     network = string(network,edgeName)
 end
     network = string(network,"}")
-    fileName = string("networkTotalCollusion",":$(stYr)-$(endYr)",".dot")
+    fileName = string("networkTotalCollusion",":$(stYr)-$(endYr)","windowSize$(windowSize)",".dot")
     print(fileName)
-    filePNG = string("networkTotalCollusion",":$(stYr)-$(endYr)",".png")
+    filePNG = string("networkTotalCollusion",":$(stYr)-$(endYr)","windowSize$(windowSize)",".png")
     print(filePNG)
     writedlm(string("./",fileName), [network])
 
@@ -288,6 +290,8 @@ end
 #print("\n two way $(yr)-$(yr + windowSize) ratio=")
 print("\n the ratio of the two Way\n")
 print(ratioTwoWay)
+fileNameTmp = string("netRatios",":$(stYr)-$(endYr)","windowSize$(windowSize)",".txt")
+writedlm(string("./",fileNameTmp), ratioTwoWay)
 
      
 end
