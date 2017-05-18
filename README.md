@@ -13,7 +13,7 @@
 4. Can we see in a graph the set of edges between all countries that exhibited 1 way or 2 way bias?
 5. If we look at a period of X years, is the collusion present in both halfs of this period if we brea the years into 2 different segments?
 
-# Running the code for the hypothetical scenario, of looking at the period 1990-2010 where the significance is determined in every 5 years.
+### Running the code for the hypothetical scenario, of looking at the period 1990-2010 where the significance is determined in every 5 years.
 1. include("Mantzaris.jl)
 2. include("demo.jl")
 3. demo(1990,2010, 5)
