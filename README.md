@@ -18,7 +18,9 @@
 2. include("demo.jl")
 3. demo(1990,2010, 5)
 
-![alt text] ( https://drive.google.com/open?id=0B7zBGXucyU5bX1lMMkpXaXFCSkk )
+![alt text][logo]
+
+[logo]: https://drive.google.com/open?id=0B7zBGXucyU5bX1lMMkpXaXFCSkk
 
 
 
