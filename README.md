@@ -18,10 +18,7 @@
 2. include("demo.jl")
 3. demo(1990,2010, 5)
 
-    ![Alt vmware](https://github.com/mantzaris/eurovision/raw/sampleFigs/ 		
-	networkTotalCollusion20072017windowSize5.png)
-
-
+ ![alt text](https://raw.githubusercontent.com/mantzaris/eurovision/master/sampleFigs/networkTotalCollusion20072017windowSize5.png)
 
 
 
