@@ -18,7 +18,7 @@
 2. include("demo.jl")
 3. demo(1990,2010, 5)
 
-![] (/sampleFigs/networkTotalCollusion20072017windowSize5.png)
+![] (sampleFigs/networkTotalCollusion20072017windowSize5.png)
 
 
 
