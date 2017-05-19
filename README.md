@@ -18,7 +18,7 @@
 2. include("demo.jl")
 3. demo(1990,2010, 5)
 
-![alt text](https://www.dropbox.com/s/wxj2qyupfnib4y7/networkTotalCollusion20072017windowSize5.png?dl=0)
+![alt text]( https://www.dropbox.com/s/wxj2qyupfnib4y7/networkTotalCollusion20072017windowSize5.png?dl=0 )
 
 
 
