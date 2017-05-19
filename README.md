@@ -18,7 +18,12 @@
 2. include("demo.jl")
 3. demo(1990,2010, 5)
 
+#### Looking at years 2007-2017 in two 5 year batches
+We see in these two periods of 5 years how many times (max 2) collusion between countries existed.
+
  ![alt text](https://raw.githubusercontent.com/mantzaris/eurovision/master/sampleFigs/networkTotalCollusion20072017windowSize5.png)
+
+ ![alt text](https://raw.githubusercontent.com/mantzaris/eurovision/master/sampleFigs/network19952000.png)
 
 
 
