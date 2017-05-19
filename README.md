@@ -18,9 +18,7 @@
 2. include("demo.jl")
 3. demo(1990,2010, 5)
 
-![alt text][logo]
-
-[logo]: http://raw.githubusercontent.com/mantzaris/eurovision/sampleFigs/networkTotalCollusion20072017windowSize5.png 
+![] (/sampleFigs/networkTotalCollusion20072017windowSize5.png)
 
 
 
