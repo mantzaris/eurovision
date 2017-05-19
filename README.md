@@ -23,6 +23,9 @@ We see in these two periods of 5 years how many times (max 2) collusion between 
 
  ![alt text](https://raw.githubusercontent.com/mantzaris/eurovision/master/sampleFigs/networkTotalCollusion20072017windowSize5.png)
 
+#### Looking at the years 1995-2000 in a single 5 year significance window
+We look for the one way biased score allocations between countries in black arrows and the two way collusive edges in red.
+
  ![alt text](https://raw.githubusercontent.com/mantzaris/eurovision/master/sampleFigs/network19952000.png)
 
 
