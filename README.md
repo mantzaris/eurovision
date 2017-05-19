@@ -1,5 +1,5 @@
 # Which countries exhibit collusion or biases when voting in the Eurovision song contest?
-(this research was done between Alexander V. Mantzaris, Samuel R. Rein, Alexander D. Hopkins; based at the University of Central Florida)
+(this research was done between Alexander V. Mantzaris, Samuel R. Rein, Alexander D. Hopkins; based at the University of Central Florida), currently availabe at https://arxiv.org/abs/1705.06721
 
 ## background 
 * written in Julia
