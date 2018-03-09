@@ -236,8 +236,9 @@ function scoreSim(stYr,endYr,countryYearsNum)
             append!(ONE_SIMULATION,[score])
         end
         avgSim = mean(ONE_SIMULATION)
-        append!(AVG_SIMULATION,[avgSim])
+        append!(AVG_SIMULATION,avgSim)
     end
+    
     sortedAVG_SIMULATION = sort(AVG_SIMULATION,rev=true)
     conf5perc = sortedAVG_SIMULATION[confInd5perc]
     conf10perc = sortedAVG_SIMULATION[confInd10perc]
@@ -276,7 +277,7 @@ function Allocated(yr,NUM)
     SCORES1 = [3,2,1]
     SCORES2 = [5,4,3,2,1]
     SCORES3 = [12,10,8,7,6,5,4,3,2,1]
-    position = ceil(rand(1,1)*NUM)	
+    position = ceil(Int,rand(1,1)*NUM)
     if(yr >= 1975 && yr <= 2016)
         SCORES = SCORES3
     elseif(yr == 1962)
