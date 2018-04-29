@@ -10,7 +10,8 @@ function demo(stYr=1975,endYr=1985,windowSize=5)
     collusionDict = Mantzaris(stYr,endYr,windowSize)
     print("\n");print(collusionDict);print("\n")
     ratioTwoWay = []
-    
+    totalTwoWay = []
+    totalOneWay = []
     while( (yr+windowSize) <= endYr )
         oneWays = collusionDict["1way:$(yr)-$(yr + windowSize)"]
         twoWays = collusionDict["2way:$(yr)-$(yr + windowSize)"]
@@ -98,6 +99,8 @@ function demo(stYr=1975,endYr=1985,windowSize=5)
         yr = yr + windowSize
 
         append!(ratioTwoWay,[length(twoWays) / (length(oneWays) - length(twoWays))])
+        append!(totalOneWay,length(oneWays)-length(twoWays))
+        append!(totalTwoWay,length(twoWays))
     end
 
 yr = stYr
@@ -289,11 +292,69 @@ end
 
 #print("\n two way $(yr)-$(yr + windowSize) ratio=")
 print("\n the ratio of the two Way\n")
-print(ratioTwoWay)
+println(ratioTwoWay)
 fileNameTmp = string("netRatios",":$(stYr)-$(endYr)","windowSize$(windowSize)",".txt")
 writedlm(string("./",fileNameTmp), ratioTwoWay)
 
-     
+print("\n the total of the two Way\n")
+println(totalTwoWay)
+fileNameTmp = string("netTotalTwoWays",":$(stYr)-$(endYr)","windowSize$(windowSize)",".txt")
+writedlm(string("./",fileNameTmp), totalTwoWay)
+
+print("\n the total of the one Way\n")
+println(totalOneWay)
+fileNameTmp = string("netTotalOneWays",":$(stYr)-$(endYr)","windowSize$(windowSize)",".txt")
+writedlm(string("./",fileNameTmp), totalOneWay)
+
+cntryNumYrs = countryYrNumber()
+
+twoWayCntryRatio = []
+oneWayCntryRatio = []
+yr=stYr
+ii = 1
+while( (yr) < endYr )
+    mNum = mean([cntryNumYrs[tmp1] for tmp1 in (yr:(yr+windowSize))])
+    #println(totalTwoWay[ii] / mNum)
+    println(mNum)
+    append!(twoWayCntryRatio,totalTwoWay[ii] / mNum)
+    append!(oneWayCntryRatio,totalOneWay[ii] / mNum)
+    yr = yr + windowSize
+    ii += 1
+end
+print("\n the total of the two Way country Ratio\n")
+println(twoWayCntryRatio)
+fileNameTmp = string("netTotalTwoWaysCntryRatio",":$(stYr)-$(endYr)","windowSize$(windowSize)",".txt")
+writedlm(string("./",fileNameTmp), twoWayCntryRatio)
+
+print("\n the total of the one Way country Ratio\n")
+println(oneWayCntryRatio)
+fileNameTmp = string("netTotalOneWaysCntryRatio",":$(stYr)-$(endYr)","windowSize$(windowSize)",".txt")
+writedlm(string("./",fileNameTmp), oneWayCntryRatio)
+
+
 end
 
+
 #run(`diplsay network.png`) 
+
+function countryYrNumber()
+    countryYearsNum = Dict{Integer,Integer}()
+    resultsFile = readdir("./dataTables/")
+    yrMin = 100000
+    yrMax = -1
+    for rf in resultsFile
+        fileTmp = open(string("./dataTables/",rf))
+        linesTmp = readlines(fileTmp)         #readfile lines
+        yrTmp = parse(Int,((split(rf,"."))[1]))
+        countryNumTmp = length(split(linesTmp[1],",")) - 1#COLUMN NAME LIST (still the same regarding large set mapping to small set in cols) OF WHO CAN RECEIVE VOTES
+        countryYearsNum[yrTmp] = countryNumTmp #NUM that receives votes
+        close(fileTmp)
+        if(yrTmp < yrMin)
+            yrMin = yrTmp
+        end
+        if(yrTmp > yrMax)
+            yrMax = yrTmp
+        end
+    end
+    countryYearsNum
+end
