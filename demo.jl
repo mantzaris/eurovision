@@ -1,3 +1,8 @@
+include("Mantzaris.jl")
+#needed for the plots
+using Plots
+#use pyplot()
+pyplot()
 
 function demo(stYr=1975,endYr=1985,windowSize=5)
     southWest = ["Portugal","Spain","Malta","SanMarino","Andorra","Monaco","Morocco","Italy"]
@@ -295,16 +300,19 @@ print("\n the ratio of the two Way\n")
 println(ratioTwoWay)
 fileNameTmp = string("netRatios",":$(stYr)-$(endYr)","windowSize$(windowSize)",".txt")
 writedlm(string("./",fileNameTmp), ratioTwoWay)
+drawTrend(string("netRatiosTwoWayToOneWay",":$(stYr)-$(endYr)","windowSize$(windowSize)"),stYr,endYr,windowSize, ratioTwoWay)
 
 print("\n the total of the two Way\n")
 println(totalTwoWay)
 fileNameTmp = string("netTotalTwoWays",":$(stYr)-$(endYr)","windowSize$(windowSize)",".txt")
 writedlm(string("./",fileNameTmp), totalTwoWay)
+drawTrend(string("netTotalTwoWays",":$(stYr)-$(endYr)","windowSize$(windowSize)"),stYr,endYr,windowSize, totalTwoWay)
 
 print("\n the total of the one Way\n")
 println(totalOneWay)
 fileNameTmp = string("netTotalOneWays",":$(stYr)-$(endYr)","windowSize$(windowSize)",".txt")
 writedlm(string("./",fileNameTmp), totalOneWay)
+drawTrend(string("netTotalOneWays",":$(stYr)-$(endYr)","windowSize$(windowSize)"),stYr,endYr,windowSize, totalOneWay)
 
 cntryNumYrs = countryYrNumber()
 
@@ -325,12 +333,13 @@ print("\n the total of the two Way country Ratio\n")
 println(twoWayCntryRatio)
 fileNameTmp = string("netTotalTwoWaysCntryRatio",":$(stYr)-$(endYr)","windowSize$(windowSize)",".txt")
 writedlm(string("./",fileNameTmp), twoWayCntryRatio)
+drawTrend(string("netTotalTwoWaysCntryRatio",":$(stYr)-$(endYr)","windowSize$(windowSize)"),stYr,endYr,windowSize, twoWayCntryRatio)
 
 print("\n the total of the one Way country Ratio\n")
 println(oneWayCntryRatio)
 fileNameTmp = string("netTotalOneWaysCntryRatio",":$(stYr)-$(endYr)","windowSize$(windowSize)",".txt")
 writedlm(string("./",fileNameTmp), oneWayCntryRatio)
-
+drawTrend(string("netTotalOneWaysCntryRatio",":$(stYr)-$(endYr)","windowSize$(windowSize)"),stYr,endYr,windowSize, oneWayCntryRatio)
 
 end
 
@@ -357,4 +366,16 @@ function countryYrNumber()
         end
     end
     countryYearsNum
+end
+
+
+
+function drawTrend(titleStr,yrStr,yrEnd,windowSize, ypnts)
+    x = [string(yr)  for yr in (yrStr:windowSize:(yrEnd-windowSize))];
+    y = ypnts
+    p = bar(x,y,title=titleStr)
+    #p = plot(x,y,title=titleStr,lw=3)
+    xlabel!("years")
+    savefig(p,"$(titleStr).png")
+
 end
