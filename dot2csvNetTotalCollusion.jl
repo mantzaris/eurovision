@@ -1,5 +1,6 @@
 
 function dot2csvTotalCollusion(filename)
+    println("in dot2csvTotalCollusion")
     matCntryEdges = []
     
     fileTmp = open(filename)
@@ -34,17 +35,19 @@ function dot2csvTotalCollusion(filename)
         end               
     end    
     writedlm(string(filename,".csv"),matCntryEdges,',')#println(matCntryEdges)
+    close(fileTmp)
 end
 
 
 function dot2csvOneWayTwoWay(filename)
+    println("in dot2csvOneWayTwoWay!")
     matCntryEdges = []
     
     fileTmp = open(filename)
     linesTmp = readlines(fileTmp)
     linesStr = linesTmp[1]#
-    println(linesStr)#
-    println(typeof(linesStr))
+    #println(linesStr)#
+    #println(typeof(linesStr))
     splits1 = split(linesStr,";")
        
     for strFrag in splits1
@@ -80,10 +83,12 @@ function dot2csvOneWayTwoWay(filename)
         end               
     end    
     writedlm(string(filename,".csv"),matCntryEdges,',')#println(matCntryEdges)
+    close(fileTmp)
 end
 
 #these files have the one ways which may not be balanced
 function dot2csvTotalOneWays(filename)
+    println("in dot2csvTotalOneWays")
     matCntryEdges = []
     
     fileTmp = open(filename)
@@ -119,14 +124,44 @@ function dot2csvTotalOneWays(filename)
         end               
     end    
     writedlm(string(filename,".csv"),matCntryEdges,',')
-    println(matCntryEdges)
+    #println(matCntryEdges)
+    close(fileTmp)
 end
 
-filename = "networkTotal:1977-2017windowSize5.dot"
-dot2csvTotalOneWays(filename)
-
+#
+function dot2csvConvert()
+    resultsFile = readdir("./")
+    for rf in resultsFile
+        extS = search(rf,".dot")
+        extC = search(rf,".csv")
+        if(!isempty(collect(extS)))
+            if(isempty(collect(extC)))
+                if((collect(extS)[end]) == (length(rf)))
+                    if(rf[1] == 'n')
+                        println(rf)
+                        if(contains(rf,"network:"))
+                            dot2csvOneWayTwoWay(rf)
+                            println("dot2csvOneWayTwoWay(filename)")
+                        elseif(contains(rf,"networkTotal:"))
+                            dot2csvTotalOneWays(rf)
+                            println("dot2csvTotalOneWays(filename)")
+                        elseif(contains(rf,"networkTotalCollusion:"))
+                            dot2csvTotalCollusion(rf)
+                            println("dot2csvTotalCollusion(filename)")
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+#
 #filename = "network:1977-1982.dot"
 #dot2csvOneWayTwoWay(filename)
+
+#filename = "networkTotal:1977-2017windowSize5.dot"
+#dot2csvTotalOneWays(filename)
+
 
 #filename = "networkTotalCollusion:1977-2017windowSize5.dot"
 #dot2csvTotalCollusion(filename)

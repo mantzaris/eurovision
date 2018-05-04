@@ -1,4 +1,9 @@
+#for the sampling
 include("Mantzaris.jl")
+#create csv of the graphs
+include("dot2csvNetTotalCollusion.jl")
+
+
 #needed for the plots
 using Plots
 #use pyplot()
@@ -130,7 +135,7 @@ yr = stYr
         yr = yr + windowSize
     end
     print("\n the aggregrate of repeated edges \n")
-    print(repeatWinds)
+print(repeatWinds)
 #####
 network = "digraph{"
 yrs = string("years","$(stYr)","to","$(endYr)")
@@ -179,15 +184,16 @@ for entry in repeatWinds2
        end
        seenC = [seenC,pairTmp[2]]  
    end
-        
+
+
 end
 
 for entry in repeatWinds
     keyTmp = entry[1]
    # if(entry[2] >= ceil((0.33)*windowSize))
-        weight = entry[2]*1.5
-        edgeName = string(keyTmp," [penwidth=$(weight)];")
-        network = string(network,edgeName)
+    weight = entry[2]*1.5
+    edgeName = string(keyTmp," [penwidth=$(weight)];")
+    network = string(network,edgeName)
     #end
 end
     network = string(network,"}")
@@ -341,6 +347,10 @@ fileNameTmp = string("netTotalOneWaysCntryRatio",":$(stYr)-$(endYr)","windowSize
 writedlm(string("./",fileNameTmp), oneWayCntryRatio)
 drawTrend(string("netTotalOneWaysCntryRatio",":$(stYr)-$(endYr)","windowSize$(windowSize)"),stYr,endYr,windowSize, oneWayCntryRatio)
 
+
+#convert to get the CSVs from the graphs
+dot2csvConvert()
+
 end
 
 
@@ -371,11 +381,14 @@ end
 
 
 function drawTrend(titleStr,yrStr,yrEnd,windowSize, ypnts)
-    x = [string(yr)  for yr in (yrStr:windowSize:(yrEnd-windowSize))];
+    x = [string(yr,"-",yr+windowSize)  for yr in (yrStr:windowSize:(yrEnd-windowSize))];
     y = ypnts
-    p = bar(x,y,title=titleStr)
+    p = bar(x,y,title=titleStr,leg=false,xrotation=60)
     #p = plot(x,y,title=titleStr,lw=3)
     xlabel!("years")
     savefig(p,"$(titleStr).png")
-
+    p2 = plot(x,y,title=titleStr,lw=4,leg=false,xrotation=60)
+    #p = plot(x,y,title=titleStr,lw=3)
+    xlabel!("years")
+    savefig(p2,"$(titleStr)line.png")
 end
