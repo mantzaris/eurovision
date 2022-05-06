@@ -132,8 +132,8 @@ end
 function dot2csvConvert()
     resultsFile = readdir("./")
     for rf in resultsFile
-        extS = search(rf,".dot")
-        extC = search(rf,".csv")
+        extS = contains(rf,".dot")
+        extC = contains(rf,".csv")
         if(!isempty(collect(extS)))
             if(isempty(collect(extC)))
                 if((collect(extS)[end]) == (length(rf)))
